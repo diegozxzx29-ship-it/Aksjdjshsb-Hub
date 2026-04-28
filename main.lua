@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Chams Edition",
+   Name = "Omnipotent Hub | Full Fix",
    LoadingTitle = "Diego's Hub",
-   LoadingSubtitle = "ESP Blue Fix",
+   LoadingSubtitle = "ESP Azul + Anti-Lag",
    ConfigurationSaving = { Enabled = false }
 })
 
@@ -29,9 +29,22 @@ local states = {
     WalkSpeedValue = 16
 }
 
-local savedPos1
+-- // FUNÇÕES DE PERFORMANCE // --
 
--- // FUNÇÕES // --
+local function ApplyAntiLag()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Enabled = false
+        end
+    end
+    game:GetService("Lighting").GlobalShadows = false
+    Rayfield:Notify({Title = "Anti-Lag", Content = "Gráficos otimizados para FPS!", Duration = 3})
+end
 
 local function ServerHop()
     local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
@@ -48,6 +61,7 @@ end
 -- // INTERFACE // --
 
 local MainTab = Window:CreateTab("Player & FPS", 4483362458)
+MainTab:CreateButton({ Name = "Ativar Anti-Lag (FPS Boost)", Callback = ApplyAntiLag })
 MainTab:CreateToggle({ Name = "Velocidade Customizada", CurrentValue = false, Callback = function(v) states.WalkSpeedToggle = v end })
 MainTab:CreateSlider({ Name = "Ajustar Velocidade", Range = {16, 300}, Increment = 1, CurrentValue = 16, Callback = function(v) states.WalkSpeedValue = v end })
 MainTab:CreateToggle({ Name = "No Clip", CurrentValue = false, Callback = function(v) states.NoClip = v end })
@@ -69,15 +83,15 @@ local function ApplyESP(player)
         local highlight = player.Character:FindFirstChild("OmniHighlight") or Instance.new("Highlight")
         highlight.Name = "OmniHighlight"
         highlight.Parent = player.Character
-        highlight.FillColor = Color3.fromRGB(0, 170, 255) -- Azul Brilhante
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- Contorno Branco
+        highlight.FillColor = Color3.fromRGB(0, 170, 255)
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         highlight.Enabled = states.ESP
     end
 end
 
--- // LOOPS // --
+-- // LOOPS DE FUNCIONAMENTO // --
 
 RunService.RenderStepped:Connect(function()
     -- WalkSpeed
@@ -104,13 +118,12 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- Atualizar ESP em todos
+    -- Atualizar ESP Chams
     if states.ESP then
         for _, p in pairs(Players:GetPlayers()) do
             ApplyESP(p)
         end
     else
-        -- Remover se desligar
         for _, p in pairs(Players:GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("OmniHighlight") then
                 p.Character.OmniHighlight.Enabled = false
@@ -134,4 +147,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Diego Hub", Content = "ESP de Corpo Azul Ativado!", Duration = 4})
+Rayfield:Notify({Title = "Pronto!", Content = "Anti-Lag e ESP Azul corrigidos.", Duration = 4})
