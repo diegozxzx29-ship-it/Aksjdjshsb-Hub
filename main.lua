@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Versão Final",
-   LoadingTitle = "Diego's Hub",
-   LoadingSubtitle = "Otimizado por Gemini AI",
+   Name = "Omnipotent Hub | Ultimate Edition 2026",
+   LoadingTitle = "Diego's Personal Script",
+   LoadingSubtitle = "by Gemini AI",
    ConfigurationSaving = { Enabled = false }
 })
 
@@ -30,23 +30,11 @@ local states = {
 }
 
 local savedPos1, savedPos2
+local currentSound = Instance.new("Sound", game:GetService("SoundService"))
+currentSound.Looped = true
+currentSound.Volume = 0.5
 
--- // FUNÇÕES AUXILIARES // --
-
-local function ApplyAntiLag()
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
-            v.Material = Enum.Material.SmoothPlastic
-            v.Reflectance = 0
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = 1
-        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-            v.Enabled = false
-        end
-    end
-    game:GetService("Lighting").GlobalShadows = false
-    Rayfield:Notify({Title = "Anti-Lag", Content = "Gráficos reduzidos com sucesso!", Duration = 3})
-end
+-- // FUNÇÕES DE APOIO // --
 
 local function ServerHop()
     local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
@@ -60,162 +48,108 @@ local function ServerHop()
     end
 end
 
+local function ApplyAntiLag()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("MeshPart") or v:IsA("UnionOperation") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Enabled = false
+        end
+    end
+    game:GetService("Lighting").GlobalShadows = false
+    Rayfield:Notify({Title = "Anti-Lag", Content = "FPS Otimizado!", Duration = 3})
+end
+
 -- // ABAS DA INTERFACE // --
 
 local MainTab = Window:CreateTab("Player & FPS", 4483362458)
-
-MainTab:CreateButton({
-    Name = "Ativar Anti-Lag (FPS Boost)",
-    Callback = function() ApplyAntiLag() end,
-})
-
-MainTab:CreateToggle({
-   Name = "Ativar Velocidade Customizada",
-   CurrentValue = false,
-   Callback = function(Value) states.WalkSpeedToggle = Value end,
-})
-
-MainTab:CreateSlider({
-   Name = "Ajustar Velocidade",
-   Range = {16, 300},
-   Increment = 1,
-   CurrentValue = 16,
-   Callback = function(Value) states.WalkSpeedValue = Value end,
-})
-
-MainTab:CreateToggle({
-   Name = "No Clip",
-   CurrentValue = false,
-   Callback = function(Value) states.NoClip = Value end,
-})
-
-MainTab:CreateToggle({
-   Name = "Infinite Jump",
-   CurrentValue = false,
-   Callback = function(Value) states.InfJump = Value end,
-})
+MainTab:CreateButton({ Name = "Ativar Anti-Lag (FPS Boost)", Callback = ApplyAntiLag })
+MainTab:CreateToggle({ Name = "Velocidade Customizada", CurrentValue = false, Callback = function(v) states.WalkSpeedToggle = v end })
+MainTab:CreateSlider({ Name = "Ajustar Velocidade", Range = {16, 300}, Increment = 1, CurrentValue = 16, Callback = function(v) states.WalkSpeedValue = v end })
+MainTab:CreateToggle({ Name = "No Clip", CurrentValue = false, Callback = function(v) states.NoClip = v end })
+MainTab:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Callback = function(v) states.InfJump = v end })
+MainTab:CreateToggle({ Name = "Anti Ragdoll", CurrentValue = false, Callback = function(v) states.AntiRagdoll = v end })
+MainTab:CreateToggle({ Name = "Instant Proximity Prompts", CurrentValue = false, Callback = function(v) states.InstantPrompt = v end })
 
 local CombatTab = Window:CreateTab("Combat & ESP", 4483345998)
+CombatTab:CreateToggle({ Name = "Aimbot Suave (Inimigos)", CurrentValue = false, Callback = function(v) states.Aimbot = v end })
+CombatTab:CreateSlider({ Name = "Alcance da Mira", Range = {50, 1500}, Increment = 50, CurrentValue = 500, Callback = function(v) states.AimRange = v end })
+CombatTab:CreateToggle({ Name = "ESP por Time (Box/Nome)", CurrentValue = false, Callback = function(v) states.ESP = v end })
 
-CombatTab:CreateToggle({
-   Name = "Aimbot Suave (Apenas Inimigos)",
-   CurrentValue = false,
-   Callback = function(Value) states.Aimbot = Value end,
-})
-
-CombatTab:CreateSlider({
-   Name = "Alcance da Mira (Studs)",
-   Range = {50, 1500},
-   Increment = 50,
-   CurrentValue = 500,
-   Callback = function(Value) states.AimRange = Value end,
-})
-
-CombatTab:CreateToggle({
-   Name = "ESP de Times (Box/Nome)",
-   CurrentValue = false,
-   Callback = function(Value) states.ESP = Value end,
-})
+local RadioTab = Window:CreateTab("Rádio & Beats", 4483362458)
+RadioTab:CreateToggle({ Name = "Música Ligar/Desligar", CurrentValue = false, Callback = function(v) if v then currentSound:Play() else currentSound:Stop() end end })
+RadioTab:CreateSlider({ Name = "Volume", Range = {0, 10}, Increment = 1, CurrentValue = 5, Callback = function(v) currentSound.Volume = v/10 end })
+RadioTab:CreateButton({ Name = "🔥 MC Zaquin - Imagina Só", Callback = function() currentSound.SoundId = "rbxassetid://5770059341" currentSound:Play() end })
+RadioTab:CreateButton({ Name = "Brazilian Phonk", Callback = function() currentSound.SoundId = "rbxassetid://9043231365" currentSound:Play() end })
+RadioTab:CreateButton({ Name = "Mandelão Instrumental", Callback = function() currentSound.SoundId = "rbxassetid://7013143970" currentSound:Play() end })
+RadioTab:CreateInput({ Name = "ID Manual", PlaceholderText = "Cole ID aqui...", Callback = function(t) currentSound.SoundId = "rbxassetid://"..t currentSound:Play() end })
 
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
+ServerTab:CreateButton({ Name = "Save Pos 1", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
+ServerTab:CreateButton({ Name = "TP Pos 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
+ServerTab:CreateButton({ Name = "Server Hop", Callback = ServerHop })
+ServerTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
 
-ServerTab:CreateSection("Posições Salvas")
-ServerTab:CreateButton({ Name = "Salvar Posição 1", Callback = function() savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end })
-ServerTab:CreateButton({ Name = "Teleportar para 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
-ServerTab:CreateButton({ Name = "Salvar Posição 2", Callback = function() savedPos2 = LocalPlayer.Character.HumanoidRootPart.CFrame end })
-ServerTab:CreateButton({ Name = "Teleportar para 2", Callback = function() if savedPos2 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos2 end end })
-
-ServerTab:CreateSection("Utilidades do Servidor")
-ServerTab:CreateButton({ Name = "Server Hop (Mudar de Server)", Callback = function() ServerHop() end })
-ServerTab:CreateButton({ Name = "Rejoin (Reconectar)", Callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
-
--- // LÓGICA DE EXECUÇÃO (LOOPS) // --
+-- // LOOPS DE FUNCIONAMENTO // --
 
 RunService.RenderStepped:Connect(function()
-    -- Controle de Velocidade
+    -- WalkSpeed
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeedToggle and states.WalkSpeedValue or 16
     end
 
-    -- Aimbot Suave Otimizado
+    -- Aimbot Suave
     if states.Aimbot and LocalPlayer.Character then
         local target = nil
         local dist = states.AimRange
-        
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Team ~= LocalPlayer.Team and p.Character and p.Character:FindFirstChild("Head") then
                 local head = p.Character.Head
                 local mag = (head.Position - Camera.CFrame.Position).Magnitude
-                
                 if mag < dist then
                     local _, onScreen = Camera:WorldToViewportPoint(head.Position)
-                    if onScreen then
-                        dist = mag
-                        target = head
-                    end
+                    if onScreen then dist = mag target = head end
                 end
             end
         end
-
         if target then
-            local targetPos = CFrame.new(Camera.CFrame.Position, target.Position)
-            Camera.CFrame = Camera.CFrame:Lerp(targetPos, states.AimSmoothing)
+            Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, target.Position), states.AimSmoothing)
         end
     end
-end)
 
--- Loop do ESP (Time-Based)
-task.spawn(function()
-    while task.wait(0.1) do
+    -- ESP Fix
+    if states.ESP then
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                 local hrp = p.Character.HumanoidRootPart
                 local isEnemy = (p.Team ~= LocalPlayer.Team)
                 local color = isEnemy and Color3.new(1, 0, 0) or Color3.new(0, 0, 1)
 
-                -- Lógica da Box
-                local b = hrp:FindFirstChild("OmniBox")
-                if states.ESP then
-                    if not b then
-                        b = Instance.new("BoxHandleAdornment", hrp)
-                        b.Name = "OmniBox"
-                        b.Adornee = hrp
-                        b.AlwaysOnTop = true
-                        b.Size = Vector3.new(4, 5.5, 1)
-                        b.Transparency = 0.6
-                    end
-                    b.Color3 = color
-                elseif b then b:Destroy() end
+                local b = hrp:FindFirstChild("OmniBox") or Instance.new("BoxHandleAdornment", hrp)
+                b.Name = "OmniBox"; b.Adornee = hrp; b.AlwaysOnTop = true; b.Size = Vector3.new(4, 5.5, 1); b.Transparency = 0.6; b.Color3 = color; b.Visible = true
 
-                -- Lógica do Nome
-                local n = hrp:FindFirstChild("OmniName")
-                if states.ESP then
-                    if not n then
-                        n = Instance.new("BillboardGui", hrp)
-                        n.Name = "OmniName"
-                        n.Size = UDim2.new(0, 100, 0, 50)
-                        n.AlwaysOnTop = true
-                        n.StudsOffset = Vector3.new(0, 3.5, 0)
-                        local l = Instance.new("TextLabel", n)
-                        l.Size = UDim2.new(1, 0, 1, 0)
-                        l.BackgroundTransparency = 1
-                        l.Font = Enum.Font.GothamBold
-                        l.TextSize = 12
-                    end
-                    n.TextLabel.Text = p.Name
-                    n.TextLabel.TextColor3 = color
-                elseif n then n:Destroy() end
+                local n = hrp:FindFirstChild("OmniName") or Instance.new("BillboardGui", hrp)
+                n.Name = "OmniName"; n.Size = UDim2.new(0, 100, 0, 50); n.AlwaysOnTop = true; n.StudsOffset = Vector3.new(0, 3.5, 0); n.Visible = true
+                local l = n:FindFirstChild("TextLabel") or Instance.new("TextLabel", n)
+                l.Size = UDim2.new(1, 0, 1, 0); l.BackgroundTransparency = 1; l.Text = p.Name; l.TextColor3 = color; l.Font = Enum.Font.GothamBold; l.TextSize = 12
             end
         end
     end
 end)
 
--- NoClip & Outros
 RunService.Stepped:Connect(function()
     if states.NoClip and LocalPlayer.Character then
-        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-            if v:IsA("BasePart") then v.CanCollide = false end
-        end
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
+    end
+    if states.InstantPrompt then
+        for _, v in pairs(workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then v.HoldDuration = 0 end end
+    end
+    if states.AntiRagdoll and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if hum:GetState() == Enum.HumanoidStateType.Ragdoll then hum:ChangeState(Enum.HumanoidStateType.GettingUp) end
     end
 end)
 
@@ -225,4 +159,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Sucesso!", Content = "Diego Hub pronto para uso.", Duration = 3})
+Rayfield:Notify({Title = "Omnipotent Hub", Content = "Tudo carregado! Divirta-se.", Duration = 4})
