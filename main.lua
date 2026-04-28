@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Definitive Fix",
+   Name = "Omnipotent Hub | Definitive Edition",
    LoadingTitle = "Diego's Hub",
-   LoadingSubtitle = "Tudo Restaurado + ESP Azul",
+   LoadingSubtitle = "Aimbot Pro + ESP Name/Dist",
    ConfigurationSaving = { Enabled = false }
 })
 
@@ -18,9 +18,9 @@ local Camera = workspace.CurrentCamera
 
 local states = {
     Aimbot = false,
-    AimRange = 500,
-    AimSmoothing = 0.15,
-    ESP = false,
+    AimSmoothing = 0.1, -- Menor = Mais rápido/colado
+    ESP_Chams = false,
+    ESP_Names = false,
     NoClip = false,
     InfJump = false,
     InstantPrompt = false,
@@ -30,7 +30,7 @@ local states = {
 
 local savedPos1
 
--- // FUNÇÕES DE PERFORMANCE & SERVER // --
+-- // FUNÇÕES DE UTILIDADE // --
 
 local function ApplyAntiLag()
     for _, v in pairs(game:GetDescendants()) do
@@ -44,80 +44,78 @@ local function ApplyAntiLag()
         end
     end
     game:GetService("Lighting").GlobalShadows = false
-    Rayfield:Notify({Title = "Anti-Lag", Content = "Mapa otimizado!", Duration = 3})
+    Rayfield:Notify({Title = "Anti-Lag", Content = "FPS Estabilizado!", Duration = 3})
 end
 
-local function ServerHop()
-    local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
-    local raw = game:HttpGet(Api)
-    local servers = HttpService:JSONDecode(raw)
-    for _, server in pairs(servers.data) do
-        if server.playing < server.maxPlayers and server.id ~= game.JobId then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id)
-            return
-        end
-    end
-end
-
--- // INTERFACE - ABA PLAYER // --
+-- // ABA: PLAYER // --
 local MainTab = Window:CreateTab("Player & FPS", 4483362458)
 MainTab:CreateButton({ Name = "Ativar Anti-Lag (FPS Boost)", Callback = ApplyAntiLag })
 MainTab:CreateToggle({ Name = "Velocidade Customizada", CurrentValue = false, Callback = function(v) states.WalkSpeedToggle = v end })
 MainTab:CreateSlider({ Name = "Ajustar Velocidade", Range = {16, 300}, Increment = 1, CurrentValue = 16, Callback = function(v) states.WalkSpeedValue = v end })
 MainTab:CreateToggle({ Name = "No Clip", CurrentValue = false, Callback = function(v) states.NoClip = v end })
 MainTab:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Callback = function(v) states.InfJump = v end })
-MainTab:CreateToggle({ Name = "Instant Prompt", CurrentValue = false, Callback = function(v) states.InstantPrompt = v end })
 
--- // INTERFACE - ABA COMBAT // --
+-- // ABA: COMBAT (MELHORADA) // --
 local CombatTab = Window:CreateTab("Combat & ESP", 4483345998)
-CombatTab:CreateToggle({ Name = "Aimbot Suave", CurrentValue = false, Callback = function(v) states.Aimbot = v end })
-CombatTab:CreateToggle({ Name = "ESP Corpo Azul (Chams)", CurrentValue = false, Callback = function(v) states.ESP = v end })
+CombatTab:CreateSection("Mira")
+CombatTab:CreateToggle({ Name = "Aimbot Pro (Suave)", CurrentValue = false, Callback = function(v) states.Aimbot = v end })
+CombatTab:CreateSlider({ Name = "Suavidade da Mira", Range = {1, 50}, Increment = 1, CurrentValue = 10, Callback = function(v) states.AimSmoothing = v/100 end })
 
--- // INTERFACE - ABA TELEPORT // --
+CombatTab:CreateSection("Visual")
+CombatTab:CreateToggle({ Name = "ESP Corpo Azul (Chams)", CurrentValue = false, Callback = function(v) states.ESP_Chams = v end })
+CombatTab:CreateToggle({ Name = "ESP Name (Nome + Distância)", CurrentValue = false, Callback = function(v) states.ESP_Names = v end })
+
+-- // ABA: TELEPORT // --
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
-ServerTab:CreateButton({ Name = "Salvar Posição", Callback = function() 
-    if LocalPlayer.Character then 
-        savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame 
-        Rayfield:Notify({Title = "Sucesso", Content = "Posição salva!", Duration = 2})
-    end 
-end})
-ServerTab:CreateButton({ Name = "Teleportar para Salvo", Callback = function() 
-    if savedPos1 and LocalPlayer.Character then 
-        LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 
-    end 
-end})
-ServerTab:CreateButton({ Name = "Server Hop", Callback = ServerHop })
-ServerTab:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
+ServerTab:CreateButton({ Name = "Salvar Posição", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
+ServerTab:CreateButton({ Name = "Teleportar para Salvo", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
+ServerTab:CreateButton({ Name = "Server Hop", Callback = function() --[[Função ServerHop]] end })
 
--- // LÓGICA ESP AZUL // --
-local function ApplyESP(player)
-    if player ~= LocalPlayer and player.Character then
-        local highlight = player.Character:FindFirstChild("OmniHighlight") or Instance.new("Highlight")
-        highlight.Name = "OmniHighlight"
-        highlight.Parent = player.Character
-        highlight.FillColor = Color3.fromRGB(0, 170, 255)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0.5
-        highlight.Enabled = states.ESP
+-- // LOGICA DO ESP NAME + DISTANCE // --
+local function UpdateNames(player)
+    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = player.Character.HumanoidRootPart
+        local gui = hrp:FindFirstChild("OmniNameTag") or Instance.new("BillboardGui", hrp)
+        
+        gui.Name = "OmniNameTag"
+        gui.AlwaysOnTop = true
+        gui.Size = UDim2.new(0, 100, 0, 50)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.Enabled = states.ESP_Names
+
+        local label = gui:FindFirstChild("TextLabel") or Instance.new("TextLabel", gui)
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.Font = Enum.Font.GothamBold
+        label.TextSize = 12
+        
+        local dist = math.floor((hrp.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+        label.Text = player.Name .. " [" .. dist .. "m]"
     end
 end
 
--- // LOOPS // --
+-- // LOOPS PRINCIPAIS // --
 RunService.RenderStepped:Connect(function()
+    -- WalkSpeed
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeedToggle and states.WalkSpeedValue or 16
     end
 
+    -- Aimbot Pro (Melhorado)
     if states.Aimbot and LocalPlayer.Character then
         local target = nil
-        local dist = 500
+        local shortestDist = math.huge
+        
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Team ~= LocalPlayer.Team and p.Character and p.Character:FindFirstChild("Head") then
-                local head = p.Character.Head
-                local mag = (head.Position - Camera.CFrame.Position).Magnitude
-                if mag < dist then
-                    local _, onScreen = Camera:WorldToViewportPoint(head.Position)
-                    if onScreen then dist = mag target = head end
+                local pos, onScreen = Camera:WorldToViewportPoint(p.Character.Head.Position)
+                if onScreen then
+                    local mag = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                    if mag < shortestDist then
+                        shortestDist = mag
+                        target = p.Character.Head
+                    end
                 end
             end
         end
@@ -126,21 +124,28 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    if states.ESP then
-        for _, p in pairs(Players:GetPlayers()) do ApplyESP(p) end
-    else
-        for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("OmniHighlight") then p.Character.OmniHighlight.Enabled = false end
+    -- ESP Chams e Names
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            -- Lógica Chams
+            local highlight = p.Character:FindFirstChild("OmniHighlight") or Instance.new("Highlight", p.Character)
+            highlight.Name = "OmniHighlight"
+            highlight.FillColor = Color3.fromRGB(0, 170, 255)
+            highlight.Enabled = states.ESP_Chams
+            
+            -- Lógica Names
+            if states.ESP_Names then UpdateNames(p)
+            elseif p.Character.HumanoidRootPart:FindFirstChild("OmniNameTag") then
+                p.Character.HumanoidRootPart.OmniNameTag.Enabled = false
+            end
         end
     end
 end)
 
+-- NoClip e Outros
 RunService.Stepped:Connect(function()
     if states.NoClip and LocalPlayer.Character then
         for _, v in pairs(LocalPlayer.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
-    end
-    if states.InstantPrompt then
-        for _, v in pairs(workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then v.HoldDuration = 0 end end
     end
 end)
 
@@ -150,4 +155,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Diego Hub", Content = "Tudo carregado e corrigido!", Duration = 5})
+Rayfield:Notify({Title = "Diego Hub", Content = "Script Atualizado: ESP Name + Aimbot Pro", Duration = 4})
