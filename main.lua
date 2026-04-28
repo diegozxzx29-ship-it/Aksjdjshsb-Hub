@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Ultimate 2026",
+   Name = "Omnipotent Hub | Performance Mode",
    LoadingTitle = "Diego's Personal Script",
-   LoadingSubtitle = "by Gemini AI",
+   LoadingSubtitle = "Clean Version (No Music)",
    ConfigurationSaving = { Enabled = false }
 })
 
@@ -30,9 +30,6 @@ local states = {
 }
 
 local savedPos1, savedPos2
-local currentSound = Instance.new("Sound", game:GetService("SoundService"))
-currentSound.Looped = true
-currentSound.Volume = 0.5
 
 -- // FUNÇÕES DE APOIO // --
 
@@ -60,7 +57,7 @@ local function ApplyAntiLag()
         end
     end
     game:GetService("Lighting").GlobalShadows = false
-    Rayfield:Notify({Title = "Anti-Lag", Content = "FPS Otimizado!", Duration = 3})
+    Rayfield:Notify({Title = "Anti-Lag", Content = "Gráficos reduzidos para máximo FPS!", Duration = 3})
 end
 
 -- // ABA: PLAYER & FPS // --
@@ -79,26 +76,6 @@ CombatTab:CreateToggle({ Name = "Aimbot Suave (Inimigos)", CurrentValue = false,
 CombatTab:CreateSlider({ Name = "Alcance da Mira", Range = {50, 1500}, Increment = 50, CurrentValue = 500, Callback = function(v) states.AimRange = v end })
 CombatTab:CreateToggle({ Name = "ESP por Time (Box/Nome)", CurrentValue = false, Callback = function(v) states.ESP = v end })
 
--- // ABA: RÁDIO (BEATS 100%) // --
-local RadioTab = Window:CreateTab("Rádio & Beats", 4483362458)
-RadioTab:CreateSection("Beats 100% Funcionais")
-local beatsSeguros = {
-    ["Brazilian Phonk"] = "9048375443",
-    ["Mandelão Instrumental"] = "7013143970",
-    ["Dark Phonk Script"] = "1837879017",
-    ["Beat de Maloka"] = "1843354605"
-}
-
-RadioTab:CreateToggle({ Name = "Música ON/OFF", CurrentValue = false, Callback = function(v) if v then currentSound:Play() else currentSound:Stop() end end })
-RadioTab:CreateSlider({ Name = "Volume", Range = {0, 10}, Increment = 1, CurrentValue = 5, Callback = function(v) currentSound.Volume = v/10 end })
-
-for nome, id in pairs(beatsSeguros) do
-    RadioTab:CreateButton({ Name = nome, Callback = function() currentSound.SoundId = "rbxassetid://"..id currentSound:Play() end })
-end
-
-RadioTab:CreateSection("ID Manual (Para Funk)")
-RadioTab:CreateInput({ Name = "Colar ID", PlaceholderText = "ID do Roblox...", Callback = function(t) currentSound.SoundId = "rbxassetid://"..t currentSound:Play() end })
-
 -- // ABA: SERVER & TP // --
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
 ServerTab:CreateButton({ Name = "Save Pos 1", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
@@ -114,7 +91,7 @@ RunService.RenderStepped:Connect(function()
         LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeedToggle and states.WalkSpeedValue or 16
     end
 
-    -- Aimbot Suave
+    -- Aimbot Suave Otimizado
     if states.Aimbot and LocalPlayer.Character then
         local target = nil
         local dist = states.AimRange
@@ -172,4 +149,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Omnipotent Hub", Content = "Pronto para o uso, Diego!", Duration = 5})
+Rayfield:Notify({Title = "Sucesso!", Content = "Script limpo e funcional carregado.", Duration = 4})
