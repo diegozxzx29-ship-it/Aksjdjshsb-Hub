@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Ultimate Edition 2026",
+   Name = "Omnipotent Hub | Ultimate 2026",
    LoadingTitle = "Diego's Personal Script",
    LoadingSubtitle = "by Gemini AI",
    ConfigurationSaving = { Enabled = false }
@@ -63,8 +63,7 @@ local function ApplyAntiLag()
     Rayfield:Notify({Title = "Anti-Lag", Content = "FPS Otimizado!", Duration = 3})
 end
 
--- // ABAS DA INTERFACE // --
-
+-- // ABA: PLAYER & FPS // --
 local MainTab = Window:CreateTab("Player & FPS", 4483362458)
 MainTab:CreateButton({ Name = "Ativar Anti-Lag (FPS Boost)", Callback = ApplyAntiLag })
 MainTab:CreateToggle({ Name = "Velocidade Customizada", CurrentValue = false, Callback = function(v) states.WalkSpeedToggle = v end })
@@ -74,19 +73,33 @@ MainTab:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Callback = 
 MainTab:CreateToggle({ Name = "Anti Ragdoll", CurrentValue = false, Callback = function(v) states.AntiRagdoll = v end })
 MainTab:CreateToggle({ Name = "Instant Proximity Prompts", CurrentValue = false, Callback = function(v) states.InstantPrompt = v end })
 
+-- // ABA: COMBAT & ESP // --
 local CombatTab = Window:CreateTab("Combat & ESP", 4483345998)
 CombatTab:CreateToggle({ Name = "Aimbot Suave (Inimigos)", CurrentValue = false, Callback = function(v) states.Aimbot = v end })
 CombatTab:CreateSlider({ Name = "Alcance da Mira", Range = {50, 1500}, Increment = 50, CurrentValue = 500, Callback = function(v) states.AimRange = v end })
 CombatTab:CreateToggle({ Name = "ESP por Time (Box/Nome)", CurrentValue = false, Callback = function(v) states.ESP = v end })
 
+-- // ABA: RÁDIO (BEATS 100%) // --
 local RadioTab = Window:CreateTab("Rádio & Beats", 4483362458)
-RadioTab:CreateToggle({ Name = "Música Ligar/Desligar", CurrentValue = false, Callback = function(v) if v then currentSound:Play() else currentSound:Stop() end end })
-RadioTab:CreateSlider({ Name = "Volume", Range = {0, 10}, Increment = 1, CurrentValue = 5, Callback = function(v) currentSound.Volume = v/10 end })
-RadioTab:CreateButton({ Name = "🔥 MC Zaquin - Imagina Só", Callback = function() currentSound.SoundId = "rbxassetid://5770059341" currentSound:Play() end })
-RadioTab:CreateButton({ Name = "Brazilian Phonk", Callback = function() currentSound.SoundId = "rbxassetid://9043231365" currentSound:Play() end })
-RadioTab:CreateButton({ Name = "Mandelão Instrumental", Callback = function() currentSound.SoundId = "rbxassetid://7013143970" currentSound:Play() end })
-RadioTab:CreateInput({ Name = "ID Manual", PlaceholderText = "Cole ID aqui...", Callback = function(t) currentSound.SoundId = "rbxassetid://"..t currentSound:Play() end })
+RadioTab:CreateSection("Beats 100% Funcionais")
+local beatsSeguros = {
+    ["Brazilian Phonk"] = "9048375443",
+    ["Mandelão Instrumental"] = "7013143970",
+    ["Dark Phonk Script"] = "1837879017",
+    ["Beat de Maloka"] = "1843354605"
+}
 
+RadioTab:CreateToggle({ Name = "Música ON/OFF", CurrentValue = false, Callback = function(v) if v then currentSound:Play() else currentSound:Stop() end end })
+RadioTab:CreateSlider({ Name = "Volume", Range = {0, 10}, Increment = 1, CurrentValue = 5, Callback = function(v) currentSound.Volume = v/10 end })
+
+for nome, id in pairs(beatsSeguros) do
+    RadioTab:CreateButton({ Name = nome, Callback = function() currentSound.SoundId = "rbxassetid://"..id currentSound:Play() end })
+end
+
+RadioTab:CreateSection("ID Manual (Para Funk)")
+RadioTab:CreateInput({ Name = "Colar ID", PlaceholderText = "ID do Roblox...", Callback = function(t) currentSound.SoundId = "rbxassetid://"..t currentSound:Play() end })
+
+-- // ABA: SERVER & TP // --
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
 ServerTab:CreateButton({ Name = "Save Pos 1", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
 ServerTab:CreateButton({ Name = "TP Pos 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
@@ -120,7 +133,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- ESP Fix
+    -- ESP Team-Based
     if states.ESP then
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
@@ -159,4 +172,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Omnipotent Hub", Content = "Tudo carregado! Divirta-se.", Duration = 4})
+Rayfield:Notify({Title = "Omnipotent Hub", Content = "Pronto para o uso, Diego!", Duration = 5})
