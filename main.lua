@@ -1,38 +1,44 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Rayfield Edition",
-   LoadingTitle = "Carregando Scripts...",
-   LoadingSubtitle = "por Diego",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "OmnipotentHub",
-      FileName = "Config"
-   }
+   Name = "Omnipotent Hub | Ultimate Edition",
+   LoadingTitle = "Diego's Personal Script",
+   LoadingSubtitle = "by Gemini AI",
+   ConfigurationSaving = { Enabled = false }
 })
 
--- Variáveis de Estado
+-- Variáveis
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local RootPart = Character:WaitForChild("HumanoidRootPart")
 
 local states = {
     Aimbot = false,
-    ESPBox = false,
-    ESPName = false,
+    AimRange = 500, -- Alcance do Aimbot
+    ESP = false,
     NoClip = false,
     AntiRagdoll = false,
     InfJump = false,
-    InstantPrompt = false
+    InstantPrompt = false,
+    WalkSpeed = 16
 }
 
 local savedPos1, savedPos2
 
--- // ABA PRINCIPAL (PLAYER) // --
-local MainTab = Window:CreateTab("Main Cheats", 4483362458) -- Icone de engrenagem
+-- // ABA PRINCIPAL // --
+local MainTab = Window:CreateTab("Movement & Game", 4483362458)
+
+MainTab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 300},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 16,
+   Callback = function(Value) states.WalkSpeed = Value end,
+})
 
 MainTab:CreateToggle({
    Name = "No Clip",
@@ -58,96 +64,72 @@ MainTab:CreateToggle({
    Callback = function(Value) states.InstantPrompt = Value end,
 })
 
--- // ABA COMBAT & VISUAL // --
-local VisualTab = Window:CreateTab("Combat & ESP", 4483345998)
+-- // ABA COMBAT // --
+local CombatTab = Window:CreateTab("Combat & ESP", 4483345998)
 
-VisualTab:CreateToggle({
-   Name = "Aimbot (Nearest Head)",
+CombatTab:CreateToggle({
+   Name = "Aimbot (Enemy Only)",
    CurrentValue = false,
    Callback = function(Value) states.Aimbot = Value end,
 })
 
-VisualTab:CreateToggle({
-   Name = "Blue ESP Box",
+CombatTab:CreateSlider({
+   Name = "Aimbot Range",
+   Range = {50, 2000},
+   Increment = 50,
+   Suffix = "Studs",
+   CurrentValue = 500,
+   Callback = function(Value) states.AimRange = Value end,
+})
+
+CombatTab:CreateToggle({
+   Name = "Team-Based ESP (Box & Name)",
    CurrentValue = false,
-   Callback = function(Value) states.ESPBox = Value end,
+   Callback = function(Value) states.ESP = Value end,
 })
 
-VisualTab:CreateToggle({
-   Name = "White ESP Name",
-   CurrentValue = false,
-   Callback = function(Value) states.ESPName = Value end,
+-- // ABA TELEPORT & SERVER // --
+local ServerTab = Window:CreateTab("Server & TP", 4483345998)
+
+ServerTab:CreateSection("Positions")
+ServerTab:CreateButton({ Name = "Save Pos 1", Callback = function() savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end })
+ServerTab:CreateButton({ Name = "Teleport Pos 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
+ServerTab:CreateButton({ Name = "Save Pos 2", Callback = function() savedPos2 = LocalPlayer.Character.HumanoidRootPart.CFrame end })
+ServerTab:CreateButton({ Name = "Teleport Pos 2", Callback = function() if savedPos2 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos2 end end })
+
+ServerTab:CreateSection("Server Utils")
+ServerTab:CreateButton({
+    Name = "Server Hop",
+    Callback = function()
+        local x = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Desc&limit=100"))
+        for _, v in pairs(x.data) do
+            if v.playing < v.maxPlayers then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, v.id)
+            end
+        end
+    end,
 })
+ServerTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 
--- // ABA TELEPORT // --
-local TPTab = Window:CreateTab("Teleports", 4483345998)
-
-TPTab:CreateSection("Saved Positions")
-
-TPTab:CreateButton({
-   Name = "Save Position 1",
-   Callback = function() savedPos1 = RootPart.CFrame Rayfield:Notify({Title = "Salvo!", Content = "Posição 1 guardada.", Duration = 2}) end,
-})
-
-TPTab:CreateButton({
-   Name = "Teleport to Pos 1",
-   Callback = function() if savedPos1 then RootPart.CFrame = savedPos1 end end,
-})
-
-TPTab:CreateButton({
-   Name = "Save Position 2",
-   Callback = function() savedPos2 = RootPart.CFrame Rayfield:Notify({Title = "Salvo!", Content = "Posição 2 guardada.", Duration = 2}) end,
-})
-
-TPTab:CreateButton({
-   Name = "Teleport to Pos 2",
-   Callback = function() if savedPos2 then RootPart.CFrame = savedPos2 end end,
-})
-
-TPTab:CreateSection("Player Teleport")
-
-local SelectedPlayer = ""
-TPTab:CreateDropdown({
-   Name = "Select Player",
-   Options = {"Refresh para listar"},
-   CurrentOption = {""},
-   MultipleOptions = false,
-   Callback = function(Option) SelectedPlayer = Option[1] end,
-})
-
-TPTab:CreateButton({
-   Name = "Refresh Player List",
-   Callback = function()
-       local pList = {}
-       for _, p in pairs(Players:GetPlayers()) do
-           if p ~= LocalPlayer then table.insert(pList, p.Name) end
-       end
-       -- Nota: No Rayfield oficial, você precisaria atualizar o Dropdown via variável
-       Rayfield:Notify({Title = "Lista Atualizada", Content = "Escolha o player no dropdown.", Duration = 2})
-   end,
-})
-
-TPTab:CreateButton({
-   Name = "Teleport to Player",
-   Callback = function()
-       local target = Players:FindFirstChild(SelectedPlayer)
-       if target and target.Character and RootPart then
-           RootPart.CFrame = target.Character.HumanoidRootPart.CFrame
-       end
-   end,
-})
-
--- // LÓGICA DE BACKEND (LOOPS) // --
+-- // LOGICA // --
 
 RunService.RenderStepped:Connect(function()
+    -- WalkSpeed
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeed
+    end
+
     -- Aimbot
     if states.Aimbot then
         local closest = nil
-        local dist = math.huge
+        local dist = states.AimRange
         for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                local d = (p.Character.Head.Position - RootPart.Position).Magnitude
-                if d < dist then dist = d closest = p.Character.Head end
+            if p ~= LocalPlayer and p.Team ~= LocalPlayer.Team and p.Character and p.Character:FindFirstChild("Head") then
+                local d = (p.Character.Head.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if d < dist then
+                    dist = d
+                    closest = p.Character.Head
+                end
             end
         end
         if closest then
@@ -155,48 +137,53 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- ESP Logic
+    -- ESP Team-Based
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = p.Character.HumanoidRootPart
-            
+            local isEnemy = (p.Team ~= LocalPlayer.Team)
+            local color = isEnemy and Color3.new(1, 0, 0) or Color3.new(0, 0, 1)
+
             -- Box
-            local b = hrp:FindFirstChild("RayBox")
-            if states.ESPBox then
+            local b = hrp:FindFirstChild("OmniBox")
+            if states.ESP then
                 if not b then
                     b = Instance.new("BoxHandleAdornment", hrp)
-                    b.Name = "RayBox"
+                    b.Name = "OmniBox"
                     b.Adornee = hrp
                     b.AlwaysOnTop = true
-                    b.Size = Vector3.new(4, 5, 1)
-                    b.Color3 = Color3.new(0, 0, 1)
+                    b.Size = Vector3.new(4.5, 6, 1) -- Box aumentada
                     b.Transparency = 0.5
                 end
+                b.Color3 = color
             elseif b then b:Destroy() end
 
             -- Name
-            local n = hrp:FindFirstChild("RayName")
-            if states.ESPName then
+            local n = hrp:FindFirstChild("OmniName")
+            if states.ESP then
                 if not n then
                     n = Instance.new("BillboardGui", hrp)
-                    n.Name = "RayName"
+                    n.Name = "OmniName"
                     n.Size = UDim2.new(0, 100, 0, 50)
                     n.AlwaysOnTop = true
-                    n.StudsOffset = Vector3.new(0, 3, 0)
+                    n.StudsOffset = Vector3.new(0, 4, 0)
                     local l = Instance.new("TextLabel", n)
                     l.Size = UDim2.new(1, 0, 1, 0)
-                    l.Text = p.Name
-                    l.TextColor3 = Color3.new(1, 1, 1)
                     l.BackgroundTransparency = 1
+                    l.Font = Enum.Font.GothamBold
+                    l.TextSize = 14
                 end
+                n.TextLabel.Text = p.Name
+                n.TextLabel.TextColor3 = color
             elseif n then n:Destroy() end
         end
     end
 end)
 
+-- NoClip & Prompts
 RunService.Stepped:Connect(function()
-    if states.NoClip and Character then
-        for _, v in pairs(Character:GetDescendants()) do
+    if states.NoClip and LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
             if v:IsA("BasePart") then v.CanCollide = false end
         end
     end
@@ -207,20 +194,11 @@ RunService.Stepped:Connect(function()
     end
 end)
 
+-- Inf Jump
 UserInputService.JumpRequest:Connect(function()
-    if states.InfJump and Character:FindFirstChildOfClass("Humanoid") then
-        Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+    if states.InfJump and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(3)
     end
 end)
 
--- Anti-Ragdoll Loop
-task.spawn(function()
-    while task.wait(0.5) do
-        if states.AntiRagdoll and Character:FindFirstChildOfClass("Humanoid") then
-            local hum = Character:FindFirstChildOfClass("Humanoid")
-            if hum:GetState() == Enum.HumanoidStateType.Ragdoll then
-                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-            end
-        end
-    end
-end)
+Rayfield:Notify({Title = "Sucesso!", Content = "Omnipotent Hub Carregado", Duration = 3})
