@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Performance Mode",
-   LoadingTitle = "Diego's Personal Script",
-   LoadingSubtitle = "Clean Version (No Music)",
+   Name = "Omnipotent Hub | Clean Edition",
+   LoadingTitle = "Diego's Hub",
+   LoadingSubtitle = "Foco em Performance",
    ConfigurationSaving = { Enabled = false }
 })
 
@@ -19,7 +19,7 @@ local Camera = workspace.CurrentCamera
 local states = {
     Aimbot = false,
     AimRange = 500,
-    AimSmoothing = 0.12,
+    AimSmoothing = 0.15,
     ESP = false,
     NoClip = false,
     AntiRagdoll = false,
@@ -31,7 +31,7 @@ local states = {
 
 local savedPos1, savedPos2
 
--- // FUNÇÕES DE APOIO // --
+-- // FUNÇÕES DE UTILIDADE // --
 
 local function ServerHop()
     local Api = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Desc&limit=100"
@@ -78,8 +78,8 @@ CombatTab:CreateToggle({ Name = "ESP por Time (Box/Nome)", CurrentValue = false,
 
 -- // ABA: SERVER & TP // --
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
-ServerTab:CreateButton({ Name = "Save Pos 1", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
-ServerTab:CreateButton({ Name = "TP Pos 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
+ServerTab:CreateButton({ Name = "Salvar Posição 1", Callback = function() if LocalPlayer.Character then savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame end end })
+ServerTab:CreateButton({ Name = "Teleportar para 1", Callback = function() if savedPos1 then LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 end end })
 ServerTab:CreateButton({ Name = "Server Hop", Callback = ServerHop })
 ServerTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
 
@@ -91,7 +91,7 @@ RunService.RenderStepped:Connect(function()
         LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeedToggle and states.WalkSpeedValue or 16
     end
 
-    -- Aimbot Suave Otimizado
+    -- Aimbot Suave (Lógica de mira que não trava a câmera)
     if states.Aimbot and LocalPlayer.Character then
         local target = nil
         local dist = states.AimRange
@@ -127,6 +127,15 @@ RunService.RenderStepped:Connect(function()
                 l.Size = UDim2.new(1, 0, 1, 0); l.BackgroundTransparency = 1; l.Text = p.Name; l.TextColor3 = color; l.Font = Enum.Font.GothamBold; l.TextSize = 12
             end
         end
+    else
+        -- Limpa o ESP quando desligado
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = p.Character.HumanoidRootPart
+                if hrp:FindFirstChild("OmniBox") then hrp.OmniBox:Destroy() end
+                if hrp:FindFirstChild("OmniName") then hrp.OmniName:Destroy() end
+            end
+        end
     end
 end)
 
@@ -149,4 +158,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Sucesso!", Content = "Script limpo e funcional carregado.", Duration = 4})
+Rayfield:Notify({Title = "Diego Hub", Content = "Script carregado sem rádio.", Duration = 4})
