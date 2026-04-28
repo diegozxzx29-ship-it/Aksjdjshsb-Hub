@@ -1,13 +1,13 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Omnipotent Hub | Full Fix",
+   Name = "Omnipotent Hub | Definitive Fix",
    LoadingTitle = "Diego's Hub",
-   LoadingSubtitle = "ESP Azul + Anti-Lag",
+   LoadingSubtitle = "Tudo Restaurado + ESP Azul",
    ConfigurationSaving = { Enabled = false }
 })
 
--- // VARIÁVEIS DE SERVIÇO // --
+-- // VARIÁVEIS // --
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -22,14 +22,15 @@ local states = {
     AimSmoothing = 0.15,
     ESP = false,
     NoClip = false,
-    AntiRagdoll = false,
     InfJump = false,
     InstantPrompt = false,
     WalkSpeedToggle = false,
     WalkSpeedValue = 16
 }
 
--- // FUNÇÕES DE PERFORMANCE // --
+local savedPos1
+
+-- // FUNÇÕES DE PERFORMANCE & SERVER // --
 
 local function ApplyAntiLag()
     for _, v in pairs(game:GetDescendants()) do
@@ -43,7 +44,7 @@ local function ApplyAntiLag()
         end
     end
     game:GetService("Lighting").GlobalShadows = false
-    Rayfield:Notify({Title = "Anti-Lag", Content = "Gráficos otimizados para FPS!", Duration = 3})
+    Rayfield:Notify({Title = "Anti-Lag", Content = "Mapa otimizado!", Duration = 3})
 end
 
 local function ServerHop()
@@ -58,26 +59,37 @@ local function ServerHop()
     end
 end
 
--- // INTERFACE // --
-
+-- // INTERFACE - ABA PLAYER // --
 local MainTab = Window:CreateTab("Player & FPS", 4483362458)
 MainTab:CreateButton({ Name = "Ativar Anti-Lag (FPS Boost)", Callback = ApplyAntiLag })
 MainTab:CreateToggle({ Name = "Velocidade Customizada", CurrentValue = false, Callback = function(v) states.WalkSpeedToggle = v end })
 MainTab:CreateSlider({ Name = "Ajustar Velocidade", Range = {16, 300}, Increment = 1, CurrentValue = 16, Callback = function(v) states.WalkSpeedValue = v end })
 MainTab:CreateToggle({ Name = "No Clip", CurrentValue = false, Callback = function(v) states.NoClip = v end })
 MainTab:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Callback = function(v) states.InfJump = v end })
-MainTab:CreateToggle({ Name = "Instant Proximity Prompts", CurrentValue = false, Callback = function(v) states.InstantPrompt = v end })
+MainTab:CreateToggle({ Name = "Instant Prompt", CurrentValue = false, Callback = function(v) states.InstantPrompt = v end })
 
+-- // INTERFACE - ABA COMBAT // --
 local CombatTab = Window:CreateTab("Combat & ESP", 4483345998)
 CombatTab:CreateToggle({ Name = "Aimbot Suave", CurrentValue = false, Callback = function(v) states.Aimbot = v end })
 CombatTab:CreateToggle({ Name = "ESP Corpo Azul (Chams)", CurrentValue = false, Callback = function(v) states.ESP = v end })
 
+-- // INTERFACE - ABA TELEPORT // --
 local ServerTab = Window:CreateTab("Server & TP", 4483345998)
+ServerTab:CreateButton({ Name = "Salvar Posição", Callback = function() 
+    if LocalPlayer.Character then 
+        savedPos1 = LocalPlayer.Character.HumanoidRootPart.CFrame 
+        Rayfield:Notify({Title = "Sucesso", Content = "Posição salva!", Duration = 2})
+    end 
+end})
+ServerTab:CreateButton({ Name = "Teleportar para Salvo", Callback = function() 
+    if savedPos1 and LocalPlayer.Character then 
+        LocalPlayer.Character.HumanoidRootPart.CFrame = savedPos1 
+    end 
+end})
 ServerTab:CreateButton({ Name = "Server Hop", Callback = ServerHop })
 ServerTab:CreateButton({ Name = "Rejoin", Callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId) end })
 
--- // LÓGICA DO ESP (CORPO AZUL) // --
-
+-- // LÓGICA ESP AZUL // --
 local function ApplyESP(player)
     if player ~= LocalPlayer and player.Character then
         local highlight = player.Character:FindFirstChild("OmniHighlight") or Instance.new("Highlight")
@@ -86,23 +98,19 @@ local function ApplyESP(player)
         highlight.FillColor = Color3.fromRGB(0, 170, 255)
         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
         highlight.Enabled = states.ESP
     end
 end
 
--- // LOOPS DE FUNCIONAMENTO // --
-
+-- // LOOPS // --
 RunService.RenderStepped:Connect(function()
-    -- WalkSpeed
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = states.WalkSpeedToggle and states.WalkSpeedValue or 16
     end
 
-    -- Aimbot
     if states.Aimbot and LocalPlayer.Character then
         local target = nil
-        local dist = states.AimRange
+        local dist = 500
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Team ~= LocalPlayer.Team and p.Character and p.Character:FindFirstChild("Head") then
                 local head = p.Character.Head
@@ -118,16 +126,11 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- Atualizar ESP Chams
     if states.ESP then
-        for _, p in pairs(Players:GetPlayers()) do
-            ApplyESP(p)
-        end
+        for _, p in pairs(Players:GetPlayers()) do ApplyESP(p) end
     else
         for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("OmniHighlight") then
-                p.Character.OmniHighlight.Enabled = false
-            end
+            if p.Character and p.Character:FindFirstChild("OmniHighlight") then p.Character.OmniHighlight.Enabled = false end
         end
     end
 end)
@@ -147,4 +150,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Pronto!", Content = "Anti-Lag e ESP Azul corrigidos.", Duration = 4})
+Rayfield:Notify({Title = "Diego Hub", Content = "Tudo carregado e corrigido!", Duration = 5})
